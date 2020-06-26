@@ -1,3 +1,6 @@
+{-# LANGUAGE NamedFieldPuns #-}
+{-# OPTIONS_GHC -fno-warn-unused-matches #-}
+
 module QuakeStar where
 
 data Town = Town String deriving Show
@@ -179,6 +182,104 @@ data SurveyTell =
 class Survey a where
     surveyAsk :: a -> SurveyTell
 
+newtype EngineeringScore = EngineeringScore Double deriving Show
+newtype ConstructionScore = ConstructionScore Double deriving Show
+newtype AppendageScore = AppendageScore Double deriving Show
+newtype StrengthScore = StrengthScore Double deriving Show
+newtype SiteScore = SiteScore Double deriving Show
+newtype BuildingScore = BuildingScore Double deriving Show
+newtype CladdingScore = CladdingScore Double deriving Show
+newtype StructureScore = StructureScore Double deriving Show
+newtype ShapeScore = ShapeScore Double deriving Show
+newtype AreaScore = AreaScore Double deriving Show
+newtype BracingScore = BracingScore Double deriving Show
+newtype SeismicScore = SeismicScore Double deriving Show
+newtype FoundationScore = FoundationScore Double deriving Show
+newtype DamageScore = DamageScore Double deriving Show
+
 -- TODO: Get the formula for and implement score.
-score :: SurveyTell -> Star
-score = undefined
+score :: SurveyTell -> ((StrengthScore, Star), (DamageScore, Star))
+score x@SurveyTell{epoch} = (s, d) where
+    site = scoreSite x
+    shape = scoreShape x
+
+    s@(strength, _) =
+        scoreStrength
+            site
+            (scoreEngineering x)
+            (scoreConstruction x)
+            shape
+            (scoreAppendage x)
+            epoch
+            (scoreArea x)
+            (scoreBracing x)
+            (scoreSeismic x)
+            (scoreFoundation x)
+    d =
+        scoreDamage
+            strength
+            site
+            (scoreBuilding x)
+            (scoreCladding x)
+            (scoreStructure x)
+            shape
+
+scoreStrength
+    :: SiteScore
+    -> EngineeringScore
+    -> ConstructionScore
+    -> ShapeScore
+    -> AppendageScore
+    -> Epoch
+    -> AreaScore
+    -> BracingScore
+    -> SeismicScore
+    -> FoundationScore
+    -> (StrengthScore, Star)
+scoreStrength = undefined
+
+scoreDamage
+    :: StrengthScore
+    -> SiteScore
+    -> BuildingScore
+    -> CladdingScore
+    -> StructureScore
+    -> ShapeScore
+    -> (DamageScore, Star)
+scoreDamage = undefined
+
+scoreSite :: SurveyTell -> SiteScore
+scoreSite SurveyTell{steepness, foundationSoil, liquifaction} = undefined
+
+scoreEngineering :: SurveyTell -> EngineeringScore
+scoreEngineering SurveyTell{} = undefined
+
+scoreConstruction :: SurveyTell -> ConstructionScore
+scoreConstruction SurveyTell{solidity} = undefined
+
+scoreShape :: SurveyTell -> ShapeScore
+scoreShape SurveyTell{areas, bracingSkew} = undefined
+
+scoreAppendage :: SurveyTell -> AppendageScore
+scoreAppendage SurveyTell{fallings} = undefined
+
+scoreArea :: SurveyTell -> AreaScore
+scoreArea SurveyTell{areas} = undefined
+
+scoreBracing :: SurveyTell -> BracingScore
+scoreBracing SurveyTell{bracings} = undefined
+
+scoreSeismic :: SurveyTell -> SeismicScore
+scoreSeismic SurveyTell{town} = undefined
+
+scoreFoundation :: SurveyTell -> FoundationScore
+scoreFoundation SurveyTell{foundationSoil, foundationStructure} = undefined
+
+scoreBuilding :: SurveyTell -> BuildingScore
+scoreBuilding SurveyTell{} = undefined
+
+scoreCladding :: SurveyTell -> CladdingScore
+scoreCladding SurveyTell{roof, walls} = undefined
+
+scoreStructure :: SurveyTell -> StructureScore
+scoreStructure SurveyTell{structures} = undefined
