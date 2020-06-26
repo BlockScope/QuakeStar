@@ -1,4 +1,4 @@
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE NamedFieldPuns, ScopedTypeVariables #-}
 {-# OPTIONS_GHC -fno-warn-unused-matches #-}
 
 module QuakeStar where
@@ -236,7 +236,11 @@ scoreStrength
     -> SeismicScore
     -> FoundationScore
     -> (StrengthScore, Star)
-scoreStrength = undefined
+scoreStrength site eng c shape a ep area b seismic f = (s, starStrength s) where
+    s :: StrengthScore
+    s = strength site eng c shape a ep area b seismic f
+
+    strength = undefined
 
 scoreDamage
     :: StrengthScore
@@ -246,7 +250,11 @@ scoreDamage
     -> StructureScore
     -> ShapeScore
     -> (DamageScore, Star)
-scoreDamage = undefined
+scoreDamage strength site b c struct shape = (d, starDamage d) where
+    d :: DamageScore
+    d = damage strength site b c struct shape
+
+    damage = undefined
 
 scoreSite :: SurveyTell -> SiteScore
 scoreSite SurveyTell{steepness, foundationSoil, liquifaction} = undefined
@@ -283,3 +291,20 @@ scoreCladding SurveyTell{roof, walls} = undefined
 
 scoreStructure :: SurveyTell -> StructureScore
 scoreStructure SurveyTell{structures} = undefined
+
+starStrength :: StrengthScore -> Star
+starStrength (StrengthScore x)
+  | x < 34 = Star0
+  | x < 67 = Star1
+  | x < 100 = Star2
+  | x < 150 = Star3
+  | x < 200 = Star4
+  | otherwise = Star5
+
+starDamage :: DamageScore -> Star
+starDamage (DamageScore x)
+  | x > 50 = Star1
+  | x > 30 = Star2
+  | x > 20 = Star3
+  | x > 10 = Star4
+  | otherwise = Star5
